@@ -42,23 +42,13 @@ public class SessionBean implements Serializable {
         return authenticated && currentUser != null;
     }
 
-    /**
-     * Redirigir al login si no está autenticado
-     */
-    public String checkAuthentication() {
-        if (!isAuthenticated()) {
-            return "/pages/login.xhtml?faces-redirect=true";
-        }
-        return null;
-    }
 
-    UserDTO userDTO = new UserDTO();
 
     public String getCurrentUserName() {
-        return userDTO != null ? userDTO.getUsername(): "Usuario";
+        return currentUser != null ? currentUser.getUsername() : "Usuario";
     }
 
     public Long getCurrentUserId() {
-        return userDTO != null ? userDTO.getUserId() : null;
+        return currentUser != null ? currentUser.getUserId() : null;
     }
 }

@@ -63,10 +63,8 @@
         </div>
 
         <h:form id="loginForm">
-            <!-- Mensajes de error/éxito -->
             <p:messages id="messages" showDetail="true" closable="true"/>
 
-            <!-- Campo Username -->
             <div class="form-field">
                 <p:outputLabel for="username" value="Usuario:"/>
                 <p:inputText id="username"
@@ -77,7 +75,6 @@
                              style="width: 100%; margin-top: 5px;"/>
             </div>
 
-            <!-- Campo Password -->
             <div class="form-field">
                 <p:outputLabel for="password" value="Contraseña:"/>
                 <p:password id="password"
@@ -89,7 +86,6 @@
                             style="width: 100%; margin-top: 5px;"/>
             </div>
 
-            <!-- Botones -->
             <p:commandButton value="Iniciar Sesión"
                              action="#{loginBean.login}"
                              update="messages"

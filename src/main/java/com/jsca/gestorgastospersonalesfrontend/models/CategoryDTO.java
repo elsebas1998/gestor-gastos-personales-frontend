@@ -10,13 +10,14 @@ import java.time.LocalDateTime;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserDTO implements Serializable{
-    private Long userId;
-    private String username;
-    private String email;
-    private String firstName;
-    private String lastName;
-    private Boolean isActive;
+public class CategoryDTO implements Serializable {
+
+    private Long categoryId;
+    private String name;
+    private String type;
+    private Boolean isFixed;
+    private String icon;
+    private String color;
+    private String description;
     private LocalDateTime createdAt;
-    private String identification;
 }
