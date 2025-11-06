@@ -23,4 +23,21 @@ public class TransactionDTO implements Serializable {
     private String categoryName;
     private String categoryIcon;
     private LocalDateTime createdAt;
+
+    /**
+     * Formatear monto como moneda
+     */
+    public String getFormattedAmount() {
+        if (amount == null) {
+            return "$0.00";
+        }
+        return String.format("$%,.2f", amount);
+    }
+
+    /**
+     * Obtener color según el tipo de transacción
+     */
+    public String getTypeColor() {
+        return "INGRESO".equals(type) ? "green" : "red";
+    }
 }

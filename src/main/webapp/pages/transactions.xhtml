@@ -1,12 +1,328 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html>
-<html lang="en"
-      xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:f="jakarta.faces.core"
-      xmlns:h="jakarta.faces.html">
-<f:view>
-    <h:head></h:head>
-    <h:body>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="jakarta.faces.html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="jakarta.faces.core">
 
-    </h:body>
-</f:view>
+<h:head>
+    <title>Transacciones - Gestor de Gastos</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f4f6f9;
+        }
+
+        .layout-wrapper {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        }
+
+        .sidebar .logo {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .sidebar .app-name {
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .sidebar .menu-item {
+            padding: 12px 15px;
+            margin-bottom: 5px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: white;
+            text-decoration: none;
+        }
+
+        .sidebar .menu-item:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .sidebar .menu-item.active {
+            background: rgba(255,255,255,0.2);
+        }
+
+        .sidebar .menu-item i {
+            font-size: 1.2rem;
+        }
+
+        /* Contenido Principal */
+        .main-content {
+            flex: 1;
+            margin-left: 260px;
+            padding: 20px;
+        }
+
+        /* Header */
+        .header {
+            background: white;
+            padding: 20px 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 1.8rem;
+        }
+
+        /* Badge de tipo de transacción */
+        .type-badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: bold;
+        }
+
+        .type-ingreso {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .type-egreso {
+            background: #f8d7da;
+            color: #721c24;
+        }
+    </style>
+</h:head>
+
+<h:body>
+    <div class="layout-wrapper">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="logo">💰</div>
+            <div class="app-name">Gestor de Gastos</div>
+
+            <h:form>
+                <p:commandLink styleClass="menu-item" action="dashboard">
+                    <i class="pi pi-home"></i>
+                    <span>Dashboard</span>
+                </p:commandLink>
+
+                <div class="menu-item active">
+                    <i class="pi pi-list"></i>
+                    <span>Transacciones</span>
+                </div>
+
+                <p:commandLink styleClass="menu-item" action="categories">
+                    <i class="pi pi-tags"></i>
+                    <span>Categorías</span>
+                </p:commandLink>
+
+                <p:commandLink styleClass="menu-item" action="savings">
+                    <i class="pi pi-money-bill"></i>
+                    <span>Planes de Ahorro</span>
+                </p:commandLink>
+
+                <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.2);">
+                    <p:commandLink styleClass="menu-item" action="#{sessionBean.logout}">
+                        <i class="pi pi-sign-out"></i>
+                        <span>Cerrar Sesión</span>
+                    </p:commandLink>
+                </div>
+            </h:form>
+        </div>
+
+        <div class="main-content">
+            <div class="header">
+                <div>
+                    <h1>Transacciones</h1>
+                    <p style="color: #666; margin-top: 5px;">Gestiona tus ingresos y egresos</p>
+                </div>
+                <div>
+                    <p:commandButton value="Nueva Transacción"
+                                     action="#{transactionsBean.openNewDialog}"
+                                     update=":dialogForm"
+                                     oncomplete="PF('transactionDialog').show();"
+                                     icon="pi pi-plus"
+                                     styleClass="ui-button-success"/>
+                </div>
+            </div>
+
+            <h:form>
+                <p:messages id="messages" showDetail="true" closable="true"/>
+            </h:form>
+
+            <h:form id="mainForm">
+                <p:panel header="Listado de Transacciones" style="margin-bottom: 20px;">
+
+                    <div style="padding: 15px; background: #f8f9fa; border-radius: 5px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
+                        <p:commandButton value="← Anterior"
+                                         action="#{transactionsBean.previousMonth}"
+                                         update="mainForm"
+                                         styleClass="ui-button-outlined"/>
+
+                        <h3 style="margin: 0; color: #333;">
+                            #{transactionsBean.currentMonthName} #{transactionsBean.currentYear}
+                        </h3>
+
+                        <p:commandButton value="Siguiente →"
+                                         action="#{transactionsBean.nextMonth}"
+                                         update="mainForm"
+                                         styleClass="ui-button-outlined"/>
+                    </div>
+
+                    <p:dataTable value="#{transactionsBean.transactions}"
+                                 var="transaction"
+                                 emptyMessage="No hay transacciones registradas en este mes"
+                                 paginator="true"
+                                 rows="10"
+                                 paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink}"
+                                 rowsPerPageTemplate="5,10,15"
+                                 styleClass="ui-datatable">
+
+                        <p:column headerText="Fecha" sortBy="#{transaction.transactionDate}" style="width: 120px;">
+                            <h:outputText value="#{transaction.transactionDate}" converter="localDateConverter"/>
+                        </p:column>
+
+                        <p:column headerText="Descripción">
+                            <h:outputText value="#{transaction.description}" />
+                        </p:column>
+
+                        <p:column headerText="Categoría" style="width: 150px;">
+                            <h:outputText value="#{transaction.categoryName}" />
+                        </p:column>
+
+                        <p:column headerText="Tipo" style="width: 100px; text-align: center;">
+                        <span class="type-badge type-#{transaction.type.toLowerCase()}">
+                            #{transaction.type}
+                        </span>
+                        </p:column>
+
+                        <p:column headerText="Monto" style="width: 150px; text-align: right;">
+                            <h:outputText value="#{transaction.formattedAmount}"
+                                          style="font-weight: bold; color: #{transaction.type eq 'INGRESO' ? 'green' : 'red'}"/>
+                        </p:column>
+
+                        <p:column headerText="Acciones" style="width: 150px; text-align: center;">
+                            <p:commandButton icon="pi pi-pencil"
+                                             title="Editar"
+                                             action="#{transactionsBean.openEditDialog(transaction)}"
+                                             update=":dialogForm"
+                                             oncomplete="PF('transactionDialog').show();"
+                                             styleClass="ui-button-warning ui-button-rounded"
+                                             style="margin-right: 5px;"/>
+
+                            <p:commandButton icon="pi pi-trash"
+                                             title="Eliminar"
+                                             action="#{transactionsBean.deleteTransaction(transaction)}"
+                                             update="mainForm :messages"
+                                             styleClass="ui-button-danger ui-button-rounded">
+                                <p:confirm header="Confirmar"
+                                           message="¿Está seguro de eliminar esta transacción?"
+                                           icon="pi pi-exclamation-triangle"/>
+                            </p:commandButton>
+                        </p:column>
+                    </p:dataTable>
+
+                </p:panel>
+            </h:form>
+
+            <p:dialog header="#{transactionsBean.selectedTransaction.transactionId == null ? 'Nueva Transacción' : 'Editar Transacción'}"
+                      widgetVar="transactionDialog"
+                      modal="true"
+                      resizable="false"
+                      width="500">
+
+                <h:form id="dialogForm">
+                    <p:panelGrid columns="2" layout="grid" styleClass="ui-fluid">
+
+                        <p:outputLabel for="type" value="Tipo: *"/>
+                        <p:selectOneButton id="type" value="#{transactionsBean.selectedTransaction.type}">
+                            <f:selectItem itemLabel="Ingreso" itemValue="INGRESO"/>
+                            <f:selectItem itemLabel="Egreso" itemValue="EGRESO"/>
+                        </p:selectOneButton>
+
+                        <p:outputLabel for="amount" value="Monto: *"/>
+                        <p:inputNumber id="amount"
+                                       value="#{transactionsBean.selectedTransaction.amount}"
+                                       required="true"
+                                       decimalPlaces="2"
+                                       thousandSeparator=","
+                                       decimalSeparator="."
+                                       minValue="0"
+                                       placeholder="0.00"/>
+
+                        <p:outputLabel for="description" value="Descripción: *"/>
+                        <p:inputText id="description"
+                                     value="#{transactionsBean.selectedTransaction.description}"
+                                     required="true"
+                                     placeholder="Ej: Pago de alquiler"/>
+
+                        <p:outputLabel for="date" value="Fecha: *"/>
+                        <p:datePicker id="date"
+                                      value="#{transactionsBean.selectedTransaction.transactionDate}"
+                                      required="true"
+                                      pattern="dd/MM/yyyy"
+                                      showIcon="true"/>
+
+                        <p:outputLabel for="category" value="Categoría:"/>
+                        <p:selectOneMenu id="category"
+                                         value="#{transactionsBean.selectedTransaction.categoryId}">
+                            <f:selectItem itemLabel="-- Sin categoría --" itemValue="#{null}"/>
+                            <f:selectItems value="#{transactionsBean.categories}"
+                                           var="cat"
+                                           itemLabel="#{cat.name}"
+                                           itemValue="#{cat.categoryId}"/>
+                        </p:selectOneMenu>
+                    </p:panelGrid>
+
+                    <div style="text-align: right; margin-top: 20px;">
+                        <p:commandButton value="Cancelar"
+                                         action="#{transactionsBean.cancelDialog}"
+                                         onclick="PF('transactionDialog').hide();"
+                                         styleClass="ui-button-secondary"
+                                         style="margin-right: 10px;"/>
+
+                        <p:commandButton value="Guardar"
+                                         action="#{transactionsBean.saveTransaction}"
+                                         update=":mainForm :messages"
+                                         onclick="PF('transactionDialog').hide();"
+                                         styleClass="ui-button-success"/>
+                    </div>
+                </h:form>
+            </p:dialog>
+
+            <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+                <p:commandButton value="Sí" type="button" styleClass="ui-confirmdialog-yes" icon="pi pi-check"/>
+                <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no ui-button-secondary" icon="pi pi-times"/>
+            </p:confirmDialog>
+        </div>
+    </div>
+</h:body>
 </html>

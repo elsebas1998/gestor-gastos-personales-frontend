@@ -1,13 +1,11 @@
 package com.jsca.gestorgastospersonalesfrontend.services;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonDeserializer;
-import com.google.gson.JsonSerializer;
+import com.google.gson.*;
 import jakarta.enterprise.context.ApplicationScoped;
 import okhttp3.*;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.concurrent.TimeUnit;
@@ -28,16 +26,14 @@ public class HttpClientService {
                 .readTimeout(30, TimeUnit.SECONDS)
                 .writeTimeout(30, TimeUnit.SECONDS)
                 .build();
-        this.gson = new GsonBuilder()
-                .registerTypeAdapter(LocalDateTime.class,
-                        (JsonSerializer<LocalDateTime>) (src, typeOfSrc, context) ->
-                                context.serialize(src.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)))
-                .registerTypeAdapter(LocalDateTime.class,
-                        (JsonDeserializer<LocalDateTime>) (json, typeOfT, context) ->
-                                LocalDateTime.parse(json.getAsString(), DateTimeFormatter.ISO_LOCAL_DATE_TIME))
-                .create();
 
+        this.gson = new GsonBuilder()
+                .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
+                .registerTypeAdapter(LocalDate.class, new LocalDateAdapter())
+                .setLenient()
+                .create();
     }
+
 
     /**
      * GET request
@@ -114,8 +110,49 @@ public class HttpClientService {
 
         try (Response response = client.newCall(request).execute()) {
             if (!response.isSuccessful()) {
-                throw new IOException("Error HTTP: " + response.code());
+                String errorBody = response.body() != null ? response.body().string() : "Unknown error";
+                throw new IOException("Error HTTP " + response.code() + ": " + errorBody);
             }
         }
     }
+
+    private static class LocalDateTimeAdapter implements JsonSerializer<LocalDateTime>, JsonDeserializer<LocalDateTime> {
+
+        private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
+
+        @Override
+        public JsonElement serialize(LocalDateTime src, java.lang.reflect.Type typeOfSrc, JsonSerializationContext context) {
+            return new JsonPrimitive(src.format(FORMATTER));
+        }
+
+        @Override
+        public LocalDateTime deserialize(JsonElement json, java.lang.reflect.Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
+            try {
+                return LocalDateTime.parse(json.getAsString(), FORMATTER);
+            } catch (Exception e) {
+                throw new JsonParseException("Error al parsear LocalDateTime: " + json.getAsString(), e);
+            }
+        }
+    }
+
+
+    private static class LocalDateAdapter implements JsonSerializer<LocalDate>, JsonDeserializer<LocalDate> {
+
+        private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ISO_LOCAL_DATE;
+
+        @Override
+        public JsonElement serialize(LocalDate src, java.lang.reflect.Type typeOfSrc, JsonSerializationContext context) {
+            return new JsonPrimitive(src.format(FORMATTER));
+        }
+
+        @Override
+        public LocalDate deserialize(JsonElement json, java.lang.reflect.Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
+            try {
+                return LocalDate.parse(json.getAsString(), FORMATTER);
+            } catch (Exception e) {
+                throw new JsonParseException("Error al parsear LocalDate: " + json.getAsString(), e);
+            }
+        }
+    }
+
 }

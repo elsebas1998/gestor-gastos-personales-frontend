@@ -1,12 +1,318 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html>
-<html lang="en"
-      xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:f="jakarta.faces.core"
-      xmlns:h="jakarta.faces.html">
-<f:view>
-    <h:head></h:head>
-    <h:body>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="jakarta.faces.html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="jakarta.faces.core">
 
-    </h:body>
-</f:view>
+<h:head>
+    <title>Categorías - Gestor de Gastos</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f4f6f9;
+        }
+
+        .layout-wrapper {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        }
+
+        .sidebar .logo {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .sidebar .app-name {
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .sidebar .menu-item {
+            padding: 12px 15px;
+            margin-bottom: 5px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: white;
+            text-decoration: none;
+        }
+
+        .sidebar .menu-item:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .sidebar .menu-item.active {
+            background: rgba(255,255,255,0.2);
+        }
+
+        .sidebar .menu-item i {
+            font-size: 1.2rem;
+        }
+
+        /* Contenido Principal */
+        .main-content {
+            flex: 1;
+            margin-left: 260px;
+            padding: 20px;
+        }
+
+        /* Header */
+        .header {
+            background: white;
+            padding: 20px 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 1.8rem;
+        }
+
+        /* Badge de tipo */
+        .type-badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: bold;
+        }
+
+        .type-ingreso {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .type-egreso {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .color-preview {
+            width: 30px;
+            height: 30px;
+            border-radius: 5px;
+            border: 2px solid #ddd;
+            display: inline-block;
+        }
+    </style>
+</h:head>
+
+<h:body>
+    <div class="layout-wrapper">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="logo">💰</div>
+            <div class="app-name">Gestor de Gastos</div>
+
+            <h:form>
+                <p:commandLink styleClass="menu-item" action="dashboard">
+                    <i class="pi pi-home"></i>
+                    <span>Dashboard</span>
+                </p:commandLink>
+
+                <p:commandLink styleClass="menu-item" action="transactions">
+                    <i class="pi pi-list"></i>
+                    <span>Transacciones</span>
+                </p:commandLink>
+
+                <div class="menu-item active">
+                    <i class="pi pi-tags"></i>
+                    <span>Categorías</span>
+                </div>
+
+                <p:commandLink styleClass="menu-item" action="savings">
+                    <i class="pi pi-money-bill"></i>
+                    <span>Planes de Ahorro</span>
+                </p:commandLink>
+
+                <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.2);">
+                    <p:commandLink styleClass="menu-item" action="#{sessionBean.logout}">
+                        <i class="pi pi-sign-out"></i>
+                        <span>Cerrar Sesión</span>
+                    </p:commandLink>
+                </div>
+            </h:form>
+        </div>
+
+        <div class="main-content">
+            <div class="header">
+                <div>
+                    <h1>Categorías</h1>
+                    <p style="color: #666; margin-top: 5px;">Organiza tus ingresos y egresos</p>
+                </div>
+                <div>
+                    <p:commandButton value="Nueva Categoría"
+                                     action="#{categoriesBean.openNewDialog}"
+                                     update=":dialogForm"
+                                     oncomplete="PF('categoryDialog').show();"
+                                     icon="pi pi-plus"
+                                     styleClass="ui-button-success"/>
+                </div>
+            </div>
+
+            <h:form id="messages">
+                <p:messages showDetail="true" closable="true"/>
+            </h:form>
+
+            <h:form id="mainForm">
+                <p:panel header="Listado de Categorías">
+
+                    <div style="padding: 15px; background: #f8f9fa; border-radius: 5px; margin-bottom: 20px;">
+                        <p:selectOneButton value="#{categoriesBean.filterType}">
+                            <f:selectItem itemLabel="Todas" itemValue="ALL"/>
+                            <f:selectItem itemLabel="Ingresos" itemValue="INGRESO"/>
+                            <f:selectItem itemLabel="Egresos" itemValue="EGRESO"/>
+                            <p:ajax listener="#{categoriesBean.filterByType}" update="mainForm"/>
+                        </p:selectOneButton>
+                    </div>
+
+                    <p:dataTable value="#{categoriesBean.categories}"
+                                 var="category"
+                                 emptyMessage="No hay categorías registradas"
+                                 paginator="true"
+                                 rows="10"
+                                 paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink}"
+                                 styleClass="ui-datatable">
+
+                        <p:column headerText="Nombre" sortBy="#{category.name}">
+                            <h:outputText value="#{category.name}" />
+                        </p:column>
+
+                        <p:column headerText="Tipo" style="width: 120px; text-align: center;">
+                            <span class="type-badge type-#{category.type.toLowerCase()}">
+                                #{category.type}
+                            </span>
+                        </p:column>
+
+                        <p:column headerText="Categoría" style="width: 120px; text-align: center;">
+                            <h:outputText value="#{category.isFixed ? 'Fijo' : 'Variable'}" />
+                        </p:column>
+
+                        <p:column headerText="Color" style="width: 80px; text-align: center;">
+                            <div class="color-preview" style="background-color: #{category.color};"></div>
+                        </p:column>
+
+                        <p:column headerText="Descripción">
+                            <h:outputText value="#{category.description}" />
+                        </p:column>
+
+                        <p:column headerText="Acciones" style="width: 150px; text-align: center;">
+                            <p:commandButton icon="pi pi-pencil"
+                                             title="Editar"
+                                             action="#{categoriesBean.openEditDialog(category)}"
+                                             update=":dialogForm"
+                                             oncomplete="PF('categoryDialog').show();"
+                                             styleClass="ui-button-warning ui-button-rounded"
+                                             style="margin-right: 5px;"/>
+
+                            <p:commandButton icon="pi pi-trash"
+                                             title="Eliminar"
+                                             action="#{categoriesBean.deleteCategory(category)}"
+                                             update="mainForm :messages"
+                                             styleClass="ui-button-danger ui-button-rounded">
+                                <p:confirm header="Confirmar"
+                                           message="¿Está seguro de eliminar esta categoría?"
+                                           icon="pi pi-exclamation-triangle"/>
+                            </p:commandButton>
+                        </p:column>
+                    </p:dataTable>
+                </p:panel>
+            </h:form>
+
+            <p:dialog header="#{categoriesBean.selectedCategory.categoryId == null ? 'Nueva Categoría' : 'Editar Categoría'}"
+                      widgetVar="categoryDialog"
+                      modal="true"
+                      resizable="false"
+                      width="500">
+
+                <h:form id="dialogForm">
+                    <p:panelGrid columns="2" layout="grid" styleClass="ui-fluid">
+
+                        <p:outputLabel for="type" value="Tipo: *"/>
+                        <p:selectOneButton id="type" value="#{categoriesBean.selectedCategory.type}">
+                            <f:selectItem itemLabel="Ingreso" itemValue="INGRESO"/>
+                            <f:selectItem itemLabel="Egreso" itemValue="EGRESO"/>
+                        </p:selectOneButton>
+
+                        <p:outputLabel for="name" value="Nombre: *"/>
+                        <p:inputText id="name"
+                                     value="#{categoriesBean.selectedCategory.name}"
+                                     required="true"
+                                     placeholder="Ej: Alquiler"/>
+
+                        <p:outputLabel for="isFixed" value="Categoría:"/>
+                        <p:selectOneButton id="isFixed" value="#{categoriesBean.selectedCategory.isFixed}">
+                            <f:selectItem itemLabel="Fijo" itemValue="true"/>
+                            <f:selectItem itemLabel="Variable" itemValue="false"/>
+                        </p:selectOneButton>
+
+                        <p:outputLabel for="color" value="Color:"/>
+                        <p:colorPicker id="color" value="#{categoriesBean.selectedCategory.color}"/>
+
+                        <p:outputLabel for="icon" value="Icono:"/>
+                        <p:inputText id="icon"
+                                     value="#{categoriesBean.selectedCategory.icon}"
+                                     placeholder="pi pi-tag"/>
+
+                        <p:outputLabel for="description" value="Descripción:"/>
+                        <p:inputTextarea id="description"
+                                         value="#{categoriesBean.selectedCategory.description}"
+                                         rows="3"
+                                         placeholder="Descripción opcional"/>
+                    </p:panelGrid>
+
+                    <div style="text-align: right; margin-top: 20px;">
+                        <p:commandButton value="Cancelar"
+                                         onclick="PF('categoryDialog').hide();"
+                                         styleClass="ui-button-secondary"
+                                         style="margin-right: 10px;"/>
+
+                        <p:commandButton value="Guardar"
+                                         action="#{categoriesBean.saveCategory}"
+                                         update=":mainForm :messages"
+                                         onclick="PF('categoryDialog').hide();"
+                                         styleClass="ui-button-success"/>
+                    </div>
+                </h:form>
+            </p:dialog>
+
+            <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+                <p:commandButton value="Sí" type="button" styleClass="ui-confirmdialog-yes" icon="pi pi-check"/>
+                <p:commandButton value="No" type="button" styleClass="ui-button-secondary ui-confirmdialog-no" icon="pi pi-times"/>
+            </p:confirmDialog>
+        </div>
+    </div>
+</h:body>
 </html>
