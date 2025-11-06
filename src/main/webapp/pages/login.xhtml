@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="jakarta.faces.html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="jakarta.faces.core">
+
+<h:head>
+    <title>Iniciar Sesión - Gestor de Gastos</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .login-container {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.3);
+            max-width: 400px;
+            width: 90%;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header .logo {
+            font-size: 3rem;
+            margin-bottom: 10px;
+        }
+
+        .header h2 {
+            color: #333;
+            margin: 0;
+        }
+
+        .form-field {
+            margin-bottom: 20px;
+        }
+
+        .back-link {
+            text-align: center;
+            margin-top: 20px;
+        }
+    </style>
+</h:head>
+
+<h:body>
+    <div class="login-container">
+        <div class="header">
+            <div class="logo">🔐</div>
+            <h2>Iniciar Sesión</h2>
+        </div>
+
+        <h:form id="loginForm">
+            <!-- Mensajes de error/éxito -->
+            <p:messages id="messages" showDetail="true" closable="true"/>
+
+            <!-- Campo Username -->
+            <div class="form-field">
+                <p:outputLabel for="username" value="Usuario:"/>
+                <p:inputText id="username"
+                             value="#{loginBean.username}"
+                             required="true"
+                             requiredMessage="El username es requerido"
+                             placeholder="Ingresa tu usuario"
+                             style="width: 100%; margin-top: 5px;"/>
+            </div>
+
+            <!-- Campo Password -->
+            <div class="form-field">
+                <p:outputLabel for="password" value="Contraseña:"/>
+                <p:password id="password"
+                            value="#{loginBean.password}"
+                            required="true"
+                            requiredMessage="La contraseña es requerida"
+                            placeholder="Ingresa tu contraseña"
+                            feedback="false"
+                            style="width: 100%; margin-top: 5px;"/>
+            </div>
+
+            <!-- Botones -->
+            <p:commandButton value="Iniciar Sesión"
+                             action="#{loginBean.login}"
+                             update="messages"
+                             icon="pi pi-sign-in"
+                             styleClass="ui-button-success"
+                             style="width: 100%; height: 45px; margin-top: 20px;"/>
+
+            <div class="back-link">
+                <p:commandButton value="¿No tienes cuenta? Regístrate"
+                                 action="#{loginBean.goToRegister}"
+                                 styleClass="ui-button-link"/>
+                <br/>
+                <p:button value="Volver al Inicio"
+                          outcome="/index.xhtml"
+                          styleClass="ui-button-link"/>
+            </div>
+        </h:form>
+    </div>
+</h:body>
+</html>
