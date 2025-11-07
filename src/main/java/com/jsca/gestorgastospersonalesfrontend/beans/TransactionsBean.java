@@ -8,6 +8,7 @@ import jakarta.annotation.PostConstruct;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.ExternalContext;
 import jakarta.faces.context.FacesContext;
+import jakarta.faces.model.SelectItem;
 import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
@@ -172,30 +173,6 @@ public class TransactionsBean implements Serializable {
     }
 
     /**
-     * Cambiar al mes anterior
-     */
-    public void previousMonth() {
-        currentMonth--;
-        if (currentMonth < 1) {
-            currentMonth = 12;
-            currentYear--;
-        }
-        loadTransactions();
-    }
-
-    /**
-     * Cambiar al mes siguiente
-     */
-    public void nextMonth() {
-        currentMonth++;
-        if (currentMonth > 12) {
-            currentMonth = 1;
-            currentYear++;
-        }
-        loadTransactions();
-    }
-
-    /**
      * Obtener nombre del mes actual
      */
     public String getCurrentMonthName() {
@@ -225,6 +202,65 @@ public class TransactionsBean implements Serializable {
     private void showSuccessMessage(String message) {
         FacesContext.getCurrentInstance().addMessage(null,
                 new FacesMessage(FacesMessage.SEVERITY_INFO, "Éxito", message));
+    }
+
+    /**
+     * Cuando se cambia el mes o año desde los dropdowns
+     */
+    public void onPeriodChange() {
+        // Validar que no sea fecha futura
+        LocalDate selected = LocalDate.of(currentYear, currentMonth, 1);
+        LocalDate today = LocalDate.now();
+
+        if (selected.isAfter(today.withDayOfMonth(1))) {
+            // Si seleccionó fecha futura, volver al mes actual
+            showErrorMessage("No puedes seleccionar un mes futuro");
+            LocalDate now = LocalDate.now();
+            this.currentYear = now.getYear();
+            this.currentMonth = now.getMonthValue();
+        }
+
+        loadTransactions();
+    }
+
+    /**
+     * Obtener lista de meses para el dropdown
+     */
+    public List<SelectItem> getMonthOptions() {
+        List<SelectItem> months = new ArrayList<>();
+        String[] monthNames = {"Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+                "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"};
+
+        LocalDate now = LocalDate.now();
+
+        for (int i = 0; i < 12; i++) {
+            int monthValue = i + 1;
+
+            // Si es el año actual, solo mostrar meses hasta el actual
+            if (currentYear == now.getYear() && monthValue > now.getMonthValue()) {
+                continue;
+            }
+
+            months.add(new SelectItem(monthValue, monthNames[i]));
+        }
+
+        return months;
+    }
+
+    /**
+     * Obtener lista de años para el dropdown
+     * Últimos 5 años + año actual
+     */
+    public List<SelectItem> getYearOptions() {
+        List<SelectItem> years = new ArrayList<>();
+        int currentYearNow = LocalDate.now().getYear();
+
+        // Últimos 5 años hacia atrás + año actual
+        for (int i = currentYearNow; i >= currentYearNow - 5; i--) {
+            years.add(new SelectItem(i, String.valueOf(i)));
+        }
+
+        return years;
     }
 
 }

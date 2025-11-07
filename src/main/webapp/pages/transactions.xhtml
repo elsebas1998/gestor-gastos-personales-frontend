@@ -181,21 +181,34 @@
             <h:form id="mainForm">
                 <p:panel header="Listado de Transacciones" style="margin-bottom: 20px;">
 
-                    <div style="padding: 15px; background: #f8f9fa; border-radius: 5px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
-                        <p:commandButton value="← Anterior"
-                                         action="#{transactionsBean.previousMonth}"
-                                         update="mainForm"
-                                         styleClass="ui-button-outlined"/>
+                    <div style="padding: 15px; background: #f8f9fa; border-radius: 5px; margin-bottom: 20px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; gap: 15px; flex-wrap: wrap;">
 
-                        <h3 style="margin: 0; color: #333;">
-                            #{transactionsBean.currentMonthName} #{transactionsBean.currentYear}
-                        </h3>
+                            <div style="flex: 1; min-width: 150px;">
+                                <h4 style="margin: 0; color: #333;">Periodo:</h4>
+                                <p style="margin: 5px 0 0 0; color: #666; font-size: 0.9rem;">
+                                    #{transactionsBean.currentMonthName} #{transactionsBean.currentYear}
+                                </p>
+                            </div>
 
-                        <p:commandButton value="Siguiente →"
-                                         action="#{transactionsBean.nextMonth}"
-                                         update="mainForm"
-                                         styleClass="ui-button-outlined"/>
+                            <div style="display: flex; gap: 10px; align-items: center;">
+                                <p:selectOneMenu value="#{transactionsBean.currentMonth}"
+                                                 style="width: 150px;">
+                                    <f:selectItems value="#{transactionsBean.monthOptions}"/>
+                                    <p:ajax listener="#{transactionsBean.onPeriodChange}"
+                                            update="mainForm :messages"/>
+                                </p:selectOneMenu>
+
+                                <p:selectOneMenu value="#{transactionsBean.currentYear}"
+                                                 style="width: 100px;">
+                                    <f:selectItems value="#{transactionsBean.yearOptions}"/>
+                                    <p:ajax listener="#{transactionsBean.onPeriodChange}"
+                                            update="mainForm :messages"/>
+                                </p:selectOneMenu>
+                            </div>
+                        </div>
                     </div>
+
 
                     <p:dataTable value="#{transactionsBean.transactions}"
                                  var="transaction"

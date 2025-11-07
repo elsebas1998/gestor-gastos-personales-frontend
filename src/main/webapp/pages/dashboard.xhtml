@@ -25,7 +25,6 @@
             min-height: 100vh;
         }
 
-        /* Sidebar (Menú Lateral) */
         .sidebar {
             width: 260px;
             background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
@@ -73,18 +72,12 @@
             background: rgba(255,255,255,0.2);
         }
 
-        .sidebar .menu-item i {
-            font-size: 1.2rem;
-        }
-
-        /* Contenido Principal */
         .main-content {
             flex: 1;
             margin-left: 260px;
             padding: 20px;
         }
 
-        /* Header */
         .header {
             background: white;
             padding: 20px 30px;
@@ -101,12 +94,6 @@
             font-size: 1.8rem;
         }
 
-        .welcome-text {
-            color: #666;
-            font-size: 1rem;
-        }
-
-        /* Cards del Dashboard */
         .dashboard-cards {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -175,7 +162,7 @@
 
 <h:body>
     <div class="layout-wrapper">
-        <!-- Sidebar -->
+        <!-- SIDEBAR -->
         <div class="sidebar">
             <div class="logo">💰</div>
             <div class="app-name">Gestor de Gastos</div>
@@ -196,11 +183,6 @@
                     <span>Categorías</span>
                 </p:commandLink>
 
-                <p:commandLink styleClass="menu-item" action="savings">
-                    <i class="pi pi-money-bill"></i>
-                    <span>Planes de Ahorro</span>
-                </p:commandLink>
-
                 <p:commandLink styleClass="menu-item" action="reports">
                     <i class="pi pi-chart-bar"></i>
                     <span>Reportes</span>
@@ -219,36 +201,24 @@
             <div class="header">
                 <div>
                     <h1>Dashboard</h1>
-                    <p class="welcome-text">Bienvenido, #{sessionBean.currentUserName}</p>
+                    <p style="color: #666; margin-top: 5px;">Bienvenido, #{sessionBean.currentUserName}</p>
                 </div>
                 <div>
                     <p:button value="Mi Perfil" icon="pi pi-user" styleClass="ui-button-outlined"/>
                 </div>
             </div>
 
-            <h:form>
+            <h:form id="mainForm">
                 <p:messages id="messages" showDetail="true" closable="true"/>
-            </h:form>
 
-            <h:form id="summaryForm">
-                <div style="background: white; padding: 20px; border-radius: 10px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
-                    <p:commandButton value="← Mes Anterior"
-                                     action="#{dashboardBean.previousMonth}"
-                                     update="summaryForm"
-                                     styleClass="ui-button-outlined"/>
-
-                    <h2 style="margin: 0; color: #333;">
-                        #{dashboardBean.currentMonthName} #{dashboardBean.currentYear}
-                    </h2>
-
-                    <p:commandButton value="Mes Siguiente →"
-                                     action="#{dashboardBean.nextMonth}"
-                                     update="summaryForm"
-                                     styleClass="ui-button-outlined"/>
+                <div style="background: white; padding: 25px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+                    <h3 style="margin: 0 0 10px 0; color: #333;">Resumen Financiero</h3>
+                    <p style="margin: 0; color: #666; font-size: 0.9rem;">
+                        Mes actual: <strong>#{dashboardBean.currentMonthName} #{dashboardBean.currentYear}</strong>
+                    </p>
                 </div>
 
                 <div class="dashboard-cards">
-                    <!-- Card: Ingresos -->
                     <div class="stat-card income">
                         <div class="card-title">Ingresos del Mes</div>
                         <div class="card-value">
@@ -257,7 +227,6 @@
                         <i class="pi pi-arrow-up card-icon"></i>
                     </div>
 
-                    <!-- Card: Egresos -->
                     <div class="stat-card expense">
                         <div class="card-title">Egresos del Mes</div>
                         <div class="card-value">
@@ -266,7 +235,6 @@
                         <i class="pi pi-arrow-down card-icon"></i>
                     </div>
 
-                    <!-- Card: Ahorro -->
                     <div class="stat-card savings">
                         <div class="card-title">Ahorro del Mes</div>
                         <div class="card-value">
@@ -275,7 +243,6 @@
                         <i class="pi pi-wallet card-icon"></i>
                     </div>
 
-                    <!-- Card: Tasa de Ahorro -->
                     <div class="stat-card rate">
                         <div class="card-title">Tasa de Ahorro</div>
                         <div class="card-value">
@@ -289,8 +256,8 @@
             <p:panel header="Últimas Transacciones" style="margin-top: 20px;">
                 <p style="text-align: center; padding: 40px; color: #999;">
                     <i class="pi pi-inbox" style="font-size: 3rem; display: block; margin-bottom: 10px;"></i>
-                    No hay transacciones registradas aún.<br/>
-                    Comienza agregando tu primera transacción.
+                    Para ver transacciones detalladas, ve a la sección <strong>"Transacciones"</strong><br/>
+                    Para reportes complejos, ve a la sección <strong>"Reportes"</strong>
                 </p>
             </p:panel>
         </div>

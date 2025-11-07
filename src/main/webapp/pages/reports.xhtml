@@ -1,0 +1,317 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="jakarta.faces.html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="jakarta.faces.core">
+
+<h:head>
+    <title>Reportes - Gestor de Gastos</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f4f6f9;
+        }
+
+        .layout-wrapper {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 260px;
+            background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        }
+
+        .sidebar .logo {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .sidebar .app-name {
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .sidebar .menu-item {
+            padding: 12px 15px;
+            margin-bottom: 5px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: white;
+            text-decoration: none;
+        }
+
+        .sidebar .menu-item:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .sidebar .menu-item.active {
+            background: rgba(255,255,255,0.2);
+        }
+
+        .main-content {
+            flex: 1;
+            margin-left: 260px;
+            padding: 20px;
+        }
+
+        .header {
+            background: white;
+            padding: 20px 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 1.8rem;
+        }
+
+        .reports-container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            color: #333;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        .form-group select,
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 25px;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 5px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+        }
+
+        .btn-secondary {
+            background: #e0e0e0;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #d0d0d0;
+        }
+
+        .reports-list {
+            margin-top: 40px;
+            padding-top: 40px;
+            border-top: 1px solid #eee;
+        }
+
+        .report-item {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .report-info h3 {
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .report-info p {
+            color: #999;
+            font-size: 13px;
+        }
+
+        .report-actions button {
+            padding: 8px 16px;
+            margin-left: 10px;
+            font-size: 13px;
+        }
+
+        .message-area {
+            margin-bottom: 20px;
+        }
+    </style>
+</h:head>
+
+<h:body>
+    <div class="layout-wrapper">
+        <!-- SIDEBAR -->
+        <div class="sidebar">
+            <div class="logo">💰</div>
+            <div class="app-name">Gestor de Gastos</div>
+
+            <h:form>
+                <p:commandLink styleClass="menu-item" action="dashboard">
+                    <i class="pi pi-home"></i>
+                    <span>Dashboard</span>
+                </p:commandLink>
+
+                <p:commandLink styleClass="menu-item" action="transactions">
+                    <i class="pi pi-list"></i>
+                    <span>Transacciones</span>
+                </p:commandLink>
+
+                <p:commandLink styleClass="menu-item" action="categories">
+                    <i class="pi pi-tags"></i>
+                    <span>Categorías</span>
+                </p:commandLink>
+
+                <p:commandLink styleClass="menu-item active" action="reports">
+                    <i class="pi pi-chart-bar"></i>
+                    <span>Reportes</span>
+                </p:commandLink>
+
+                <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.2);">
+                    <p:commandLink styleClass="menu-item" action="#{sessionBean.logout}">
+                        <i class="pi pi-sign-out"></i>
+                        <span>Cerrar Sesión</span>
+                    </p:commandLink>
+                </div>
+            </h:form>
+        </div>
+
+        <div class="main-content">
+            <div class="header">
+                <h1>Reportes</h1>
+                <p style="color: #666; margin-top: 5px;">Descarga reportes de tu gestor de gastos</p>
+            </div>
+
+            <div class="message-area">
+                <p:messages id="messages" showDetail="true" closable="true" />
+            </div>
+
+            <div class="reports-container">
+                <h2 style="color: #333; margin-bottom: 30px;">Generar Reportes</h2>
+
+                <h:form id="reportForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="monthSelect">Mes:</label>
+                            <h:selectOneMenu id="monthSelect" value="#{reportsBean.selectedMonth}">
+                                <f:selectItems value="#{reportsBean.monthOptions}" />
+                            </h:selectOneMenu>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="yearSelect">Año:</label>
+                            <h:selectOneMenu id="yearSelect" value="#{reportsBean.selectedYear}">
+                                <f:selectItems value="#{reportsBean.yearOptions}" />
+                            </h:selectOneMenu>
+                        </div>
+                    </div>
+
+                    <div class="button-group">
+                        <h:commandButton
+                                value="📄 Descargar Resumen Mensual"
+                                action="#{reportsBean.downloadResumenMensual}"
+                                styleClass="btn btn-primary"
+                        />
+                        <h:commandButton
+                                value="Limpiar"
+                                type="reset"
+                                styleClass="btn btn-secondary"
+                        />
+                    </div>
+                </h:form>
+
+                <div class="reports-list">
+                    <h3 style="color: #333; margin-bottom: 20px;">Reportes Disponibles</h3>
+
+                    <div class="report-item">
+                        <div class="report-info">
+                            <h3>📊 Resumen Mensual</h3>
+                            <p>Resumen financiero del mes seleccionado con ingresos, egresos, ahorros y tasa de ahorro</p>
+                        </div>
+                        <div class="report-actions">
+                            <span style="color: #999; font-size: 13px;">✅ Disponible</span>
+                        </div>
+                    </div>
+
+                    <div class="report-item">
+                        <div class="report-info">
+                            <h3>📋 Transacciones Detalladas</h3>
+                            <p>Listado completo de todas las transacciones del período seleccionado</p>
+                        </div>
+                        <div class="report-actions">
+                            <span style="color: #ffc107; font-size: 13px;">⏳ Próximamente</span>
+                        </div>
+                    </div>
+
+                    <div class="report-item">
+                        <div class="report-info">
+                            <h3>📈 Comparativo Mensual</h3>
+                            <p>Comparación de ingresos y egresos entre varios meses con gráficos</p>
+                        </div>
+                        <div class="report-actions">
+                            <span style="color: #ffc107; font-size: 13px;">⏳ Próximamente</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</h:body>
+</html>
