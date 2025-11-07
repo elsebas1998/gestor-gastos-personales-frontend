@@ -183,4 +183,35 @@ public class ReportsBean implements Serializable {
             e.printStackTrace();
         }
     }
+
+    /**
+     * Descargar reporte de transacciones detalladas
+     */
+    public void downloadTransaccionesDetalladas() {
+        try {
+            if (selectedMonth == null || selectedYear == null) {
+                showErrorMessage("Selecciona mes y año");
+                return;
+            }
+
+            Long userId = sessionBean.getCurrentUserId();
+
+            String url = String.format("%s/transacciones-detalladas?mes=%d&anio=%d&userId=%d",
+                    API_BASE_URL, selectedMonth, selectedYear, userId);
+
+            byte[] pdfBytes = callApiForPDF(url);
+
+            if (pdfBytes == null || pdfBytes.length == 0) {
+                showErrorMessage("Error: El API no retornó datos válidos");
+                return;
+            }
+
+            downloadFile(pdfBytes, "transacciones-" + selectedMonth + "-" + selectedYear + ".pdf");
+            showSuccessMessage("Reporte descargado exitosamente");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            showErrorMessage("Error al generar el reporte: " + e.getMessage());
+        }
+    }
 }
